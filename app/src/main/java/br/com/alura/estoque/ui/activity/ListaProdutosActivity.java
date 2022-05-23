@@ -1,6 +1,7 @@
 package br.com.alura.estoque.ui.activity;
 
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -22,6 +23,7 @@ public class ListaProdutosActivity extends AppCompatActivity {
     private static final String TITULO_APPBAR = "Lista de produtos";
     private ListaProdutosAdapter adapter;
     private ProdutoDAO dao;
+    private ProdutosRepository produtosRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +37,7 @@ public class ListaProdutosActivity extends AppCompatActivity {
         EstoqueDatabase db = EstoqueDatabase.getInstance(this);
         dao = db.getProdutoDAO();
 
-        final ProdutosRepository produtosRepository = new ProdutosRepository(dao);
+        produtosRepository = new ProdutosRepository(dao);
         produtosRepository.buscaProdutos(adapter::atualiza);
     }
 
@@ -61,17 +63,20 @@ public class ListaProdutosActivity extends AppCompatActivity {
     }
 
     private void abreFormularioSalvaProduto() {
-        new SalvaProdutoDialog(this, this::salva).mostra();
+        new SalvaProdutoDialog(this, produto -> produtosRepository.salva(produto, new ProdutosRepository.DadosCarregadosCallback<Produto>() {
+            @Override
+            public void quandoSucesso(Produto resultado) {
+                adapter.adiciona(resultado);
+            }
+
+            @Override
+            public void quandoFalha(String erro) {
+                Toast.makeText(ListaProdutosActivity.this, "Não foi possível salvar o produto", Toast.LENGTH_SHORT).show();
+            }
+        })).mostra();
     }
 
-    private void salva(Produto produto) {
-        new BaseAsyncTask<>(() -> {
-            long id = dao.salva(produto);
-            return dao.buscaProduto(id);
-        }, produtoSalvo ->
-                adapter.adiciona(produtoSalvo))
-                .execute();
-    }
+
 
     private void abreFormularioEditaProduto(int posicao, Produto produto) {
         new EditaProdutoDialog(this, produto,
