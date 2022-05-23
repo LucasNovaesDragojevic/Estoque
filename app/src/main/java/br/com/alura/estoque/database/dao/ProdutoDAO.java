@@ -1,5 +1,7 @@
 package br.com.alura.estoque.database.dao;
 
+import static androidx.room.OnConflictStrategy.REPLACE;
+
 import java.util.List;
 
 import androidx.room.Dao;
@@ -14,6 +16,9 @@ public interface ProdutoDAO {
 
     @Insert
     long salva(Produto produto);
+
+    @Insert(onConflict = REPLACE)
+    void salva(List<Produto> produtos);
 
     @Update
     void atualiza(Produto produto);
