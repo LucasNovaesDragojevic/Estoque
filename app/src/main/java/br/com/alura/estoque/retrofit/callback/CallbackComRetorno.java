@@ -1,15 +1,16 @@
 package br.com.alura.estoque.retrofit.callback;
 
+import br.com.alura.estoque.repository.ProdutosRepository;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.internal.EverythingIsNonNull;
 
-public class BaseCallback <T> implements Callback <T> {
+public class CallbackComRetorno<T> implements Callback <T> {
 
-    private final RespostaCallback<T> callback;
+    private final DadosCarregadosCallback<T> callback;
 
-    public BaseCallback(RespostaCallback<T> callback) {
+    public CallbackComRetorno(DadosCarregadosCallback<T> callback) {
         this.callback = callback;
     }
 
@@ -32,7 +33,7 @@ public class BaseCallback <T> implements Callback <T> {
         callback.quandoFalha("Falha de comunicação: " + t.getMessage());
     }
 
-    public interface RespostaCallback <T> {
+    public interface DadosCarregadosCallback <T> {
         void quandoSucesso(T resultado);
         void quandoFalha(String erro);
     }
